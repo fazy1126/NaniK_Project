@@ -11,9 +11,11 @@ Looper::Looper() {
   _sceneStack.push(make_shared<TitleScene>(this, parameter));
 }
 
-bool Looper::loop() const {
+bool Looper::loop() {
   _sceneStack.top()->update();
   _sceneStack.top()->draw();
+  _fps.draw();
+  _fps.wait();
   return true;
 }
 
