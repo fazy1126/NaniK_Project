@@ -7,6 +7,12 @@ class Define {
     static const int WIN_W;
 
     static const float PI;
+
+    enum eLevel {
+      Easy,
+      Normal,
+      Hard,
+    };
 };
 
 #endif

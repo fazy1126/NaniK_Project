@@ -1,6 +1,8 @@
 #include "Looper.hpp"
 #include "TitleScene.hpp"
-//#include "Error.hpp"
+#include "GameScene.hpp"
+#include "Error.hpp"
+#include "Macro.hpp"
 
 using namespace std;
 
@@ -16,4 +18,19 @@ bool Looper::loop() const {
 }
 
 void Looper::onSceneChanged(const eScene scene, const Parameter& parameter, const bool stackClear)
-{}
+{
+  if(stackClear){
+    while(!_sceneStack.empty()) _sceneStack.pop();
+  }
+  switch(scene){
+    case Title:
+      _sceneStack.push(make_shared<TitleScene>(this, parameter));
+      break;
+    case Game:
+      _sceneStack.push(make_shared<GameScene>(this, parameter));
+      break;
+    default:
+      ERR("あるはずのないシーンが呼ばれました");
+      break;
+  }
+}
