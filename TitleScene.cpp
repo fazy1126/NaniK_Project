@@ -1,13 +1,14 @@
 #include "TitleScene.hpp"
 #include "GameScene.hpp"
 #include "Define.hpp"
+#include "Keyboard.hpp"
 #include "dxlib/DxLib.h"
 
 TitleScene::TitleScene(IOnSceneChangedListener *impl, const Parameter& parameter) : AbstractScene(impl, parameter)
 {}
 
 void TitleScene::update() {
-  if(CheckHitKey(KEY_INPUT_E)) {
+  if(Keyboard::getIns()->getPressingCount(KEY_INPUT_E) == 1) {
     Parameter parameter;
     parameter.set(GameScene::ParameterTagLevel, Define::eLevel::Easy);
     const bool stackClear = false;

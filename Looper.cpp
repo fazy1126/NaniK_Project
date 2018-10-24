@@ -3,6 +3,8 @@
 #include "GameScene.hpp"
 #include "Error.hpp"
 #include "Macro.hpp"
+#include "Keyboard.hpp"
+#include "Mouse.hpp"
 
 using namespace std;
 
@@ -14,8 +16,10 @@ Looper::Looper() {
 bool Looper::loop() {
   _sceneStack.top()->update();
   _sceneStack.top()->draw();
-  _fps.draw();
   _fps.wait();
+  Keyboard::getIns()->update();
+  Mouse::getIns()->update();
+  DrawFormatString(0, 0, GetColor(255, 255, 255), "%d", Mouse::getIns()->getCursolePoint().first);
   return true;
 }
 
