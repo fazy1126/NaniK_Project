@@ -12,6 +12,7 @@ class GameScene : public AbstractScene {
     GameScene(IOnSceneChangedListener *impl, const Parameter& parameter);
     virtual ~GameScene() = default;
 
+    void initialize() override;
     void update() override;
     void draw() const override;
 

@@ -9,9 +9,9 @@ class Define {
     static const float PI;
 
     enum eLevel {
-      Easy,
-      Normal,
-      Hard,
+      Level1,
+      Level2,
+      Level3,
     };
 };
 

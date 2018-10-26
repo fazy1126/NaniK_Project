@@ -3,6 +3,7 @@
 
 enum eScene {
   Title,
+  Program,
   Game,
 };
 
