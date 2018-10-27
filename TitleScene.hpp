@@ -26,6 +26,9 @@ class TitleScene : public AbstractScene{
   private: 
     std::vector<MenuElement> _menu;
     bool _oldmouse_input = false;
+    std::pair<int, int> _start_push, _end_push;
+
+    bool inRange(int nx, int ny, int mx, int my, int rangex, int rangey);
 };
 
 #endif
