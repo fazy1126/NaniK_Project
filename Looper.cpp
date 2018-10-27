@@ -1,6 +1,7 @@
 #include "Looper.hpp"
 #include "TitleScene.hpp"
 #include "GameScene.hpp"
+#include "ProgramScene.hpp"
 #include "Error.hpp"
 #include "Macro.hpp"
 #include "Keyboard.hpp"
@@ -13,7 +14,6 @@ Looper::Looper() {
   
   Parameter parameter;
   _sceneStack.push(make_shared<TitleScene>(this, parameter));
-  _sceneStack.top()->initialize();
 }
 
 bool Looper::loop() {
@@ -32,11 +32,12 @@ void Looper::onSceneChanged(const eScene scene, const Parameter& parameter, cons
   switch(scene){
     case Title:
       _sceneStack.push(make_shared<TitleScene>(this, parameter));
-      _sceneStack.top()->initialize();
+      break;
+    case Program:
+      _sceneStack.push(make_shared<ProgramScene>(this, parameter));
       break;
     case Game:
       _sceneStack.push(make_shared<GameScene>(this, parameter));
-      _sceneStack.top()->initialize();
       break;
     default:
       ERR("あるはずのないシーンが呼ばれました");

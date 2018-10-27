@@ -19,7 +19,6 @@ class TitleScene : public AbstractScene{
   public:
     TitleScene(IOnSceneChangedListener *impl, const Parameter& parameter);
     virtual ~TitleScene() = default;
-    void initialize() override;
     void update() override;
     void draw() const override;
 

@@ -7,22 +7,17 @@
 
 static const int WHITE = GetColor(255, 255, 255);
 static const int RANGEX = 200;
-static const int RANGEY = 100;
+static const int RANGEY = 40;
 
 TitleScene::TitleScene(IOnSceneChangedListener *impl, const Parameter& parameter) : AbstractScene(impl, parameter)
 {
-}
-
-void TitleScene::initialize() {
-  std::string name = "ゲームスタート";
-  int start, end;
-  std::tie(start, end) = Image::getIns()->getMenu();
-  _menu.emplace_back(MenuElement(640, 400, name, start));
-  name = "ゲームシュウリョウ";
-  _menu.emplace_back(MenuElement(640, 600, name, end));
+  int start_handle, end_handle;
+  std::tie(start_handle, end_handle) = Image::getIns()->getMenu();
+  _menu.emplace_back(MenuElement(640, 400, "Start", start_handle));
 }
 
 void TitleScene::update() {
+  //マウスの状態を更新
   int mouse_x, mouse_y;
   GetMousePoint(&mouse_x, &mouse_y);
   if(_oldmouse_input == false && GetMouseInput() & MOUSE_INPUT_LEFT) {
@@ -41,10 +36,12 @@ void TitleScene::update() {
       inRange(e.x, e.y, _start_push.first, _start_push.second, RANGEX, RANGEY)
       && inRange(e.x, e.y, _end_push.first, _end_push.second, RANGEX, RANGEY)
     ) {
-      Parameter parameter;
-      const bool stackClear = false;
-      _implSceneChanged->onSceneChanged(eScene::Game, parameter, stackClear);
-      return;
+      if(e.name == "Start") {
+        Parameter parameter;
+        const bool stackClear = false;
+        _implSceneChanged->onSceneChanged(eScene::Program, parameter, stackClear);
+        return;
+      }
     }
 
     //押されていない状態で範囲内にカーソルがあればサイズ拡大

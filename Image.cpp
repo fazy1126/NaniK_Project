@@ -3,7 +3,6 @@
 
 Image::Image() {
   _gamestart = myLoadGraph("Image/Menu/gamestart.png");
-  _gameend = myLoadGraph("Image/Menu/gameend.png");
 }
 
 void Image::release() {

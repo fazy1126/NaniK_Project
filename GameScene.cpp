@@ -8,9 +8,6 @@ GameScene::GameScene(IOnSceneChangedListener* impl, const Parameter& parameter) 
   _level = parameter.get(ParameterTagLevel);
 }
 
-void GameScene::initialize() {
-}
-
 void GameScene::update()
 {}
 
