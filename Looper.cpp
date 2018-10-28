@@ -6,6 +6,7 @@
 #include "Macro.hpp"
 #include "Keyboard.hpp"
 #include "Image.hpp"
+#include "Text.hpp"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void Looper::onSceneChanged(const eScene scene, const Parameter& parameter, cons
       _sceneStack.push(make_shared<TitleScene>(this, parameter));
       break;
     case Program:
+      Text::getIns()->load();
       _sceneStack.push(make_shared<ProgramScene>(this, parameter));
       break;
     case Game:

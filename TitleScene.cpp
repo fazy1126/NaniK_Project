@@ -59,6 +59,11 @@ void TitleScene::draw() const {
   }
 }
 
+/*
+nx/ny:対象物の中心座標
+mx/my:マウスカーソルの座標
+rangex/rangey:範囲
+*/
 bool TitleScene::inRange(int nx, int ny, int mx, int my, int rangex, int rangey) {
   if(nx-rangex <= mx && mx <= nx+rangex && ny-rangey <= my && my <= ny+rangey) return true;
   else return false;
