@@ -9,6 +9,10 @@ Text::Text() {
   _enemylastaction = myLoadText("DescriptionText/EnemyLastAction.txt");
   _random = myLoadText("DescriptionText/Random.txt");
   _else = myLoadText("DescriptionText/Else.txt");
+
+  _attack = myLoadText("DescriptionText/Attack.txt");
+  _block = myLoadText("DescriptionText/Block.txt");
+  _counterattack = myLoadText("DescriptionText/CounterAttack.txt");
 }
 
 std::vector<std::string> Text::myLoadText(const char* filename) {

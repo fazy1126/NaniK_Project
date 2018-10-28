@@ -20,6 +20,9 @@ class Text final : public Singleton<Text> {
     vecs getEnemylastaction() { return _enemylastaction; }
     vecs getRandom() { return _random; }
     vecs getElse() { return _else; }
+    vecs getAttack() { return _attack; }
+    vecs getBlock() { return _block; }
+    vecs getCounterattack() { return _counterattack; }
 
   private: 
     vecs myLoadText(const char*);
@@ -30,6 +33,10 @@ class Text final : public Singleton<Text> {
     vecs _enemylastaction;
     vecs _random;
     vecs _else;
+
+    vecs _attack;
+    vecs _block;
+    vecs _counterattack;
 };
 
 #endif
