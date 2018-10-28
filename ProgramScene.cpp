@@ -9,7 +9,9 @@ static const int BLACK = GetColor(0, 0, 0);
 static const int RED = GetColor(255, 0, 0);
 static const int CWIDTH = 340;    //コマンドブロックの幅
 static const int CHEIGHT = 48;    //コマンドブロックの高さ
-static const int DBSIZE = 10;      //コマンドブロック右上のバツボタンのサイズ(正方形)
+static const int DBSIZE = 10;     //コマンドブロック右上のバツボタンのサイズ(正方形)
+static const int AWIDTH = 170;    //コウドウブロックの幅
+static const int AHEIGHT = 48;    //コウドウブロックの高さ
 static const int BWIDTH = 48;     //ボタンの幅
 static const int BHEIGHT = 48;    //ボタンの高さ
 static const int COMMANDNUM = 6; //コマンドの数
@@ -69,11 +71,17 @@ void ProgramScene::update() {
     }
   }
   for(auto &e : _usercommand) {
+    if(inRange(e.x2-DBSIZE, e.y1, mouse_x, mouse_y, DBSIZE, DBSIZE)) e.onbutton = true;
+    else e.onbutton = false;
+    if(
+      inRange(e.x2-DBSIZE, e.y1, _startpush.first, _startpush.second, DBSIZE, DBSIZE)
+      && inRange(e.x2-DBSIZE, e.y1, _endpush.first, _endpush.second, DBSIZE, DBSIZE)
+    ) {
+      e.type = eCommand::Empty; e.value = -1; e.d_name = "";
+    }
     if(inRange(e.x1, e.y1, _startpush.first, _startpush.second, CWIDTH, CHEIGHT)) {
       _select_user = &e - &_usercommand[0];
     }
-    if(inRange(e.x2-DBSIZE, e.y1, mouse_x, mouse_y, DBSIZE, DBSIZE)) e.onbutton = true;
-    else e.onbutton = false;
   }
 }
 
@@ -102,6 +110,7 @@ void ProgramScene::draw() const {
     //枠
     DrawBox(e.x1, e.y1, e.x2, e.y2, WHITE, FALSE);
     DrawFormatString(e.x1+_fontsize/2, e.y1+_fontsize/2, WHITE, e.d_name.c_str());
+    DrawFormatString(e.x2+10, e.y1, WHITE, "->");
   }
 }
 

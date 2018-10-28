@@ -37,6 +37,7 @@ class ProgramScene : public AbstractScene {
     std::pair<int, int> _startpush, _endpush; //クリックが始まった座標と終わった座標
     eCommand _select_list = eCommand::Empty; //commandlist(右)で選択されている項目
     int _select_user = -1; //usercommand(左)で選択されている項目
+    bool _select_category = 0; //commandlistに表示されるカテゴリー(0:commandlist 1:action)
     std::vector<commandBlock> _usercommand; //ユーザーが組み立てるコマンドブロック
     std::vector<commandBlock> _commandlist; //コマンドのリスト(右側)
     std::vector<Button> _button_user; //ユーザーコマンドと
