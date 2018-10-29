@@ -1,5 +1,6 @@
 #include "dxlib/DxLib.h"
 #include "Keyboard.hpp"
+#include <vector>
 
 bool Keyboard::update() {
   char nowKeyStatus[KEY_NUM];

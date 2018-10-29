@@ -7,7 +7,7 @@ static const int WHITE = GetColor(255, 255, 255);
 static const int GRAY = GetColor(169, 169, 169);
 static const int BLACK = GetColor(0, 0, 0);
 static const int RED = GetColor(255, 0, 0);
-static const int CWIDTH = 351;    //コマンドブロックの幅
+static const int CWIDTH = 414;    //コマンドブロックの幅
 static const int CHEIGHT = 48;    //コマンドブロックの高さ
 static const int DBSIZE = 10;     //コマンドブロック右上のバツボタンのサイズ(正方形)
 static const int AWIDTH = (CWIDTH)/3; //アクションブロックの幅
@@ -31,10 +31,10 @@ ProgramScene::ProgramScene(IOnSceneChangedListener* impl, const Parameter& param
   for(int i=0; i<COMMANDNUM; ++i) {
     _commandlist[i] = {pntx, pnty, pntx+CWIDTH, pnty+=CHEIGHT};
   }
-  _commandlist[0].type = eCommand::RestMyHp; _commandlist[0].d_name = "ジブンノノコリHPが( )イジョウノトキ...";
-  _commandlist[1].type = eCommand::RestEnemyHp; _commandlist[1].d_name = "アイテノノコリHPが( )イジョウノトキ...";
+  _commandlist[0].type = eCommand::RestMyHp; _commandlist[0].d_name = "ジブンノノコリタイリョクガ( )イジョウノトキ...";
+  _commandlist[1].type = eCommand::RestEnemyHp; _commandlist[1].d_name = "アイテノノコリタイリョクガ( )イジョウノトキ...";
   _commandlist[2].type = eCommand::MyLastAction; _commandlist[2].d_name = "ジブンノサイゴノコウドウが( )ノトキ...";
-  _commandlist[3].type = eCommand::EnemyLastAction; _commandlist[3].d_name = "アイテノサイゴノHPが( )ノトキ...";
+  _commandlist[3].type = eCommand::EnemyLastAction; _commandlist[3].d_name = "アイテノサイゴノコウドウが( )ノトキ...";
   _commandlist[4].type = eCommand::Random; _commandlist[4].d_name = "1/( )ノカクリツデ...";
   _commandlist[5].type = eCommand::Else; _commandlist[5].d_name = "ウエノジョウケンニアテハマラナカッタトキ...";
   //アクションリストの初期化
@@ -82,6 +82,9 @@ ProgramScene::ProgramScene(IOnSceneChangedListener* impl, const Parameter& param
   _deletebutton = {
     (Button){pntx, pnty, pntx+AHEIGHT/2, pnty+AHEIGHT/2, "-"}
   };
+  _inputblock = {
+    _commandlist.back().x1, _commandlist.back().y2+CHEIGHT/2, _commandlist.back().x2, _commandlist.back().y2+1.5*CHEIGHT
+  };
 }
 
 void ProgramScene::update() {
@@ -93,6 +96,7 @@ void ProgramScene::update() {
     _startpush_left = std::make_pair(mouse_x, mouse_y);
     _endpush_left = std::make_pair(-1, -1);
     _oldmouseinput_left = true;
+    _inputblock.mouse = _startpush_left;
   }
   else if(_oldmouseinput_left && !(GetMouseInput() & MOUSE_INPUT_LEFT)) {
     _endpush_left = std::make_pair(mouse_x, mouse_y);
@@ -199,6 +203,56 @@ void ProgramScene::update() {
     }
     else e.pressing = false;
   }
+  if(inRange(_inputblock.x1, _inputblock.y1, _inputblock.mouse.first, _inputblock.mouse.second, CWIDTH, CHEIGHT)) {
+    _inputblock.inputstate = true;
+    if(_inputblock.inputstate) {
+      _inputblock.getInput();
+      if(Keyboard::getIns()->getPressingCount(KEY_INPUT_RETURN)==1) {
+        if(_select_cuser!=-1 && _usercommand[_select_cuser].type!=eCommand::Else && _usercommand[_select_cuser].type!=eCommand::Empty) {
+          auto cmd = _usercommand[_select_cuser];
+          int l, r;
+          for(int i=0; i<cmd.d_name.length(); i++){
+            if(cmd.d_name[i]=='(') {
+              l = i;
+            }
+            else if(cmd.d_name[i] == ')') {
+              r = i;
+            }
+          }
+          cmd.d_name.erase(l+1, r-l-1);
+          if(_inputblock.value.length() > 0) {
+            int num = std::stoi(_inputblock.value);
+            if(cmd.type == eCommand::MyLastAction || cmd.type == eCommand::EnemyLastAction) {
+              switch(num) {
+                case 0:
+                  _inputblock.value = "コウゲキ";
+                  break;
+                case 1:
+                  _inputblock.value = "ボウギョ";
+                  break;
+                case 2:
+                  _inputblock.value = "ハンゲキ";
+                  break;
+                default:
+                  _inputblock.value = " ";
+                  break;
+              }
+            } else {
+              _inputblock.value = std::to_string(num);
+            }
+            cmd.value = num;
+          } else {
+            cmd.value = -1;
+            _inputblock.value = " ";
+          }
+          cmd.d_name.insert(l+1, _inputblock.value);
+          _usercommand[_select_cuser] = cmd;
+          _inputblock.value = "";
+        }
+      }
+    }
+  }
+  else _inputblock.inputstate = false;
   //list
   if(_select_category == 0) {
     for(auto &e : _commandlist) {
@@ -267,9 +321,9 @@ void ProgramScene::draw() const {
       if(e.type == _select_clist) DrawBox(e.x1+4, e.y1+4, e.x2-3, e.y2-3, WHITE, FALSE); //選択されていたら枠を追加
       DrawFormatString(e.x1+_fontsize/2, e.y1+_fontsize/2, WHITE, e.d_name.c_str());
     }
-    DrawBox(_commandlist.back().x1, _commandlist.back().y2+CHEIGHT/2+CHEIGHT, _commandlist.back().x2+1, Define::WIN_H-PNT-CHEIGHT+1,
+    DrawBox(_commandlist.back().x1, _commandlist.back().y2+2*CHEIGHT, _commandlist.back().x2+1, Define::WIN_H-PNT-CHEIGHT+1,
       WHITE, FALSE);
-    int y = _commandlist.back().y2-1 + CHEIGHT;
+    int y = _commandlist.back().y2+2.5*CHEIGHT;
     if(_select_clist != eCommand::Empty) { //説明文
       for(auto &e : _cdescription.at(_select_clist)) {
         std::string str = e;
@@ -362,6 +416,14 @@ void ProgramScene::draw() const {
   DrawBox(_useraddbutton.x1, _useraddbutton.y1, _useraddbutton.x2+1, _useraddbutton.y2+1, WHITE, TRUE);
   DrawFormatString(_useraddbutton.x1+(_useraddbutton.x2-_useraddbutton.x1)/2-_fontsize/2, _useraddbutton.y1-_fontsize/2+3,
     BLACK, _useraddbutton.name.c_str());
+  //入力ボックス
+  if(_select_category == 0) {
+    DrawBox(_inputblock.x1, _inputblock.y1, _inputblock.x2, _inputblock.y2, WHITE, FALSE);
+    DrawFormatString(_inputblock.x1+_fontsize/2, _inputblock.y1+_fontsize/2, WHITE, _inputblock.value.c_str());
+    if(_inputblock.inputstate) {
+      DrawFormatString(_inputblock.x1+_inputblock.value.length()*_dfontsize+_fontsize/2, _inputblock.y1+_fontsize/2, WHITE, "|");
+    }
+  }
 }
 
 /*

@@ -4,34 +4,9 @@
 #include "AbstractScene.hpp"
 #include "eCommand.hpp"
 #include "eAction.hpp"
+#include "Blocks.hpp"
 #include <vector>
 #include <map>
-
-/*
-x1/y1: 左端上の座標
-x2/y2: 右端下の座標
-*/
-struct Button {
-  int x1, y1, x2, y2;
-  std::string name;
-  bool pressing = false;
-  bool delete_p = false;
-};
-struct commandBlock {
-  int x1, y1, x2, y2;
-  std::string d_name = ""; //画面に表示する名前
-  eCommand type;  //コマンドタイプ
-  int value = -1; //入力される値
-  bool onbutton = false; //バツボタンの上にカーソルが乗っているか
-  bool delete_p = false;
-};
-struct actionBlock {
-  int x1, y1, x2, y2;
-  std::string d_name = "";
-  eAction type;
-  bool onbutton = false;
-  bool delete_p = false;
-};
 
 class ProgramScene : public AbstractScene {
   public: 
@@ -54,6 +29,7 @@ class ProgramScene : public AbstractScene {
     Button _useraddbutton; //コマンド・アクションを追加するボタン
     std::vector<Button> _tabbutton;     //commandlistとactionlistを切り替えるタブボタン
     std::vector<Button> _deletebutton;  //usrecommand/useractionを一行消去
+    numInputBlock _inputblock; //入力ボックス
 
     std::vector<commandBlock> _usercommand; //ユーザーが組み立てるコマンドブロック
     std::vector<actionBlock> _useraction; //ユーザーが組み立てるアクションブロック
