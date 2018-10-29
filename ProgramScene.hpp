@@ -42,6 +42,7 @@ class ProgramScene : public AbstractScene {
 
   private: 
     int _fontsize; //フォントサイズ
+    int _dfontsize; //実際に画面に表示されるフォントサイズ
     bool _oldmouseinput_left = false, _oldmouseinput_right = false; //前のフレームでクリックされていたか
     std::pair<int, int> _startpush_left, _endpush_left, _startpush_right, _endpush_right; //クリックが始まった座標と終わった座標
     eCommand _select_clist = eCommand::Empty; //commandlist(右)で選択されている項目

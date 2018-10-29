@@ -21,6 +21,7 @@ static const int PNT = 32;        //ウィンドウのそれぞれの隅に空�
 ProgramScene::ProgramScene(IOnSceneChangedListener* impl, const Parameter& parameter) : AbstractScene(impl, parameter)
 {
   _fontsize = CHEIGHT / 2;
+  _dfontsize = 14;
   _startpush_left = _endpush_left = _startpush_right = _endpush_right = std::make_pair(-1, -1);
   SetFontSize(_fontsize);
 
@@ -70,7 +71,7 @@ ProgramScene::ProgramScene(IOnSceneChangedListener* impl, const Parameter& param
 
   //ボタンの初期化
   _useraddbutton = {
-    _usercommand.back().x1, Define::WIN_H-AHEIGHT/2, _useraction.back().x2+AHEIGHT, Define::WIN_H, "+"
+    _usercommand.back().x1, Define::WIN_H-AHEIGHT, _useraction.back().x2+AHEIGHT, Define::WIN_H-AHEIGHT/2, "+"
   };
   pntx = Define::WIN_W - CWIDTH - PNT, pnty = PNT;
   _tabbutton = {
@@ -149,7 +150,7 @@ void ProgramScene::update() {
   }
   //common(usercommand&useraction)
   auto userc = _usercommand.back(); auto usera = _useraction.back();
-  if(inRange(PNT, 0, mouse_x, mouse_y, (usera.x2-PNT), Define::WIN_H)) {
+  if(inRange(PNT, 0, mouse_x, mouse_y, _useraddbutton.x2-_useraddbutton.x1, Define::WIN_H)) {
     int dy = 0;
     if(wheel > 0) dy = 20;
     else if(wheel < 0) dy = -20;
@@ -192,6 +193,8 @@ void ProgramScene::update() {
         _deletebutton[idx].delete_p = true;
         _usercommand[idx].delete_p = true;
         _useraction[idx].delete_p = true;
+        if(_select_cuser == idx) _select_cuser = -1;
+        if(_select_auser == idx) _select_auser = -1;
       }
     }
     else e.pressing = false;
@@ -207,9 +210,11 @@ void ProgramScene::update() {
         && inRange(e.x1, e.y1, _startpush_right.first, _startpush_right.second, CWIDTH, CHEIGHT)
         && inRange(e.x1, e.y1, _endpush_right.first, _endpush_right.second, CWIDTH, CHEIGHT)
       ) {
+        if(_select_cuser != -1) {
           auto tmp = _usercommand[_select_cuser];
           tmp.d_name = e.d_name; tmp.type = e.type;
           _usercommand[_select_cuser] = tmp;
+        }
       }
     }
   } else {
@@ -222,17 +227,24 @@ void ProgramScene::update() {
         && inRange(e.x1, e.y1, _startpush_right.first, _startpush_right.second, CWIDTH, CHEIGHT)
         && inRange(e.x1, e.y1, _endpush_right.first, _endpush_right.second, CWIDTH, CHEIGHT)
       ) {
+        if(_select_auser != -1) {
           auto tmp = _useraction[_select_auser];
           tmp.d_name = e.d_name; tmp.type = e.type;
           _useraction[_select_auser] = tmp;
+        }
       }
     }
   }
 
+  //delete
+  int pntx = _usercommand.front().x1, pntx2 = _usercommand.front().x2;
+  int pnty = _usercommand.front().y1, pnty2 = _usercommand.front().y2;
   deleteBlock(_usercommand);
-  dressBlock(_usercommand, PNT, PNT, PNT+CWIDTH, PNT+CHEIGHT);
+  dressBlock(_usercommand, pntx, pnty, pntx2, pnty2);
+  pntx = _useraction.front().x1, pntx2 = _useraction.front().x2;
+  pnty = _useraction.front().y1, pnty2 = _useraction.front().y2;
   deleteBlock(_useraction);
-  dressBlock(_useraction, PNT+CWIDTH+_fontsize*2+20, PNT, PNT+CWIDTH+_fontsize*2+20+AWIDTH, PNT+AHEIGHT);
+  dressBlock(_useraction, pntx, pnty, pntx2, pnty2);
   int dcnt = 0;
   for(int i=0; i<_deletebutton.size(); i++) if(_deletebutton[i].delete_p){ 
     _deletebutton[i].delete_p=false, dcnt++;
@@ -255,10 +267,24 @@ void ProgramScene::draw() const {
       if(e.type == _select_clist) DrawBox(e.x1+4, e.y1+4, e.x2-3, e.y2-3, WHITE, FALSE); //選択されていたら枠を追加
       DrawFormatString(e.x1+_fontsize/2, e.y1+_fontsize/2, WHITE, e.d_name.c_str());
     }
+    DrawBox(_commandlist.back().x1, _commandlist.back().y2+CHEIGHT/2+CHEIGHT, _commandlist.back().x2+1, Define::WIN_H-PNT-CHEIGHT+1,
+      WHITE, FALSE);
     int y = _commandlist.back().y2-1 + CHEIGHT;
-    if(_select_clist != eCommand::Empty) {
+    if(_select_clist != eCommand::Empty) { //説明文
       for(auto &e : _cdescription.at(_select_clist)) {
-        DrawFormatString(_commandlist.back().x1, y, WHITE, e.c_str()); y+=_fontsize;
+        std::string str = e;
+        while(true) {
+          if(CWIDTH-_fontsize >= str.length()/3*_dfontsize) {
+            DrawFormatString(_commandlist.back().x1+_fontsize/2, y, WHITE, str.c_str());
+            y += _fontsize;
+            break;
+          } else {
+            int num = (CWIDTH-_fontsize)/_dfontsize;
+            DrawFormatString(_commandlist.back().x1+_fontsize/2, y, WHITE, str.substr(0, num*3).c_str());
+            str = str.substr(num * 3);
+            y += _fontsize;
+          }
+        }
       }
     }
   }
@@ -268,6 +294,26 @@ void ProgramScene::draw() const {
       DrawBox(e.x1, e.y1, e.x2+1, e.y2+1, WHITE, FALSE);
       if(e.type == _select_alist) DrawBox(e.x1+4, e.y1+4, e.x2-3, e.y2-3, WHITE, FALSE);
       DrawFormatString(e.x1+_fontsize/2, e.y1+_fontsize/2, WHITE, e.d_name.c_str());
+    }
+    DrawBox(_actionlist.front().x1, _actionlist.back().y2+AHEIGHT/2, _actionlist.back().x2+1, Define::WIN_H-PNT-CHEIGHT+1,
+      WHITE, FALSE);
+    int y = _actionlist.back().y2-1 + AHEIGHT;
+    if(_select_alist != eAction::Empty) { //説明文
+      for(auto &e : _adescription.at(_select_alist)) {
+        std::string str = e;
+        while(true) {
+          if(CWIDTH-_fontsize >= str.length()/3*_dfontsize) {
+            DrawFormatString(_actionlist.front().x1+_fontsize/2, y, WHITE, str.c_str());
+            y += _fontsize;
+            break;
+          } else {
+            int num = (CWIDTH-_fontsize)/_dfontsize;
+            DrawFormatString(_actionlist.front().x1+_fontsize/2, y, WHITE, str.substr(0, num*3).c_str());
+            str = str.substr(num * 3);
+            y += _fontsize;
+          }
+        }
+      }
     }
   }
   //user
@@ -299,9 +345,6 @@ void ProgramScene::draw() const {
     DrawFormatString(e.x1+_fontsize/2, e.y1+_fontsize/2, WHITE, e.d_name.c_str());
   }
   //button
-  DrawBox(_useraddbutton.x1, _useraddbutton.y1, _useraddbutton.x2+1, _useraddbutton.y2+1, WHITE, TRUE);
-  DrawFormatString(_useraddbutton.x1+(_useraddbutton.x2-_useraddbutton.x1)/2-_fontsize/2, _useraddbutton.y1-_fontsize/2+3,
-    BLACK, _useraddbutton.name.c_str());
   for(auto &e : _tabbutton) {
     int scolor = WHITE, bcolor = BLACK;
     if(&e - &_tabbutton[0] == _select_category) {
@@ -315,6 +358,10 @@ void ProgramScene::draw() const {
     if(e.pressing) DrawBox(e.x1+3, e.y1+3, e.x2-2, e.y2-2, WHITE, FALSE);
     DrawFormatString(e.x1+_fontsize/4, e.y1-_fontsize/4, WHITE, e.name.c_str());
   }
+  DrawBox(_useraddbutton.x1, _useraddbutton.y1-AHEIGHT/4, _useraddbutton.x2+1, Define::WIN_H+1, BLACK, TRUE);
+  DrawBox(_useraddbutton.x1, _useraddbutton.y1, _useraddbutton.x2+1, _useraddbutton.y2+1, WHITE, TRUE);
+  DrawFormatString(_useraddbutton.x1+(_useraddbutton.x2-_useraddbutton.x1)/2-_fontsize/2, _useraddbutton.y1-_fontsize/2+3,
+    BLACK, _useraddbutton.name.c_str());
 }
 
 /*
